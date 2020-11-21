@@ -1,22 +1,13 @@
 import requests
 import pandas as pd
+from analyse import get_fa, get_ta
 
-TOKEN = <insert-your-bot-token-here>
+TOKEN = # <insert-your-bot-token-here>
 bot = "https://api.telegram.org/bot"+TOKEN+"/"
 df = pd.read_csv('stock.csv')
+names = df['Name'].to_list()
+tickers = df['Ticker'].to_list()
 
-def get_reply(input_text):
-    names = df['Name'].to_list()
-    tickers = df['Ticker'].to_list()
-
-    for x in tickers:
-        if x.lower() in input_text.lower():
-            ticker = x
-
-    stock = df.loc[df['Ticker'] == ticker]['Name'].values[0]
-
-    response = requests.get('http://localhost:5000/ta?text='+stock)
-    return response.text
 
 def get_message():
     params = {'timeout': 100, 'offset': None}
@@ -38,18 +29,41 @@ def send_message(chat, reply_text):
 
 def main():
     last_update_id = 0
+    print("Running...")
+    stock = ''
     while True:
         chat_id, message, update_id = get_message()
         if update_id > last_update_id:
             # print(message)
             if message == '/start':
-                reply = 'Hello! I\'m Trading Helper. How I may help you?'
+                reply = 'Hello! I\'m Trading Helper. Which stock you want to know about?'
                 send_message(chat_id, reply)
             elif message == 'Invalid input type':
                 send_message(chat_id, message)
             else:
-                reply = get_reply(message) 
+                for x in tickers:
+                    if x.lower() in message.lower():
+                        ticker = x
+                        stock = df.loc[df['Ticker'] == ticker]['Name'].values[0]
+                
+                if 'ta' in message.lower() or 'technical' in message.lower():
+                    if len(stock)>1: 
+                        response = get_ta(stock)
+                        reply = 'Here is the TA for $'+ticker+':\n' +response + '\n\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
+                    else:
+                        reply = 'Sorry. I forgot the ticker. Can you please say again?'
+                elif 'fa' in message.lower() or 'fundamental' in message.lower():
+                    if len(stock)>1: 
+                        response = get_ta(stock)
+                        reply = 'FA'
+                        # reply = 'Here is the FA for $'+ticker+':\n' +response + '\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
+                    else:
+                        reply = 'Sorry. I forgot the ticker. Can you please say again?'
+                else:
+                    reply = 'May I know whether yo want FA or TA information?' 
+                    
                 send_message(chat_id, reply)
+
             last_update_id = update_id
         else:
             continue
