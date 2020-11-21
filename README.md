@@ -4,4 +4,4 @@ For the InvestHack2020, we created a Telegram Bot that can provide fundamental a
 The bot retrieve the information from [Investing.com](https://www.investing.com/)
 
 ## Resources
-1. [Telegram Bot](https://core.telegram.org/bots)
+[Telegram Bot](https://core.telegram.org/bots)
