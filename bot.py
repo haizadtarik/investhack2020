@@ -2,8 +2,9 @@ import requests
 import pandas as pd
 from analyse import get_fa, get_ta
 
-TOKEN = # <insert-your-bot-token-here>
+TOKEN = '1291071980:AAE5nltPjU627ZeFgCWE5PtjLdw1_cbnt1o' # <insert-your-bot-token-here>
 bot = "https://api.telegram.org/bot"+TOKEN+"/"
+
 df = pd.read_csv('stock.csv')
 names = df['Name'].to_list()
 tickers = df['Ticker'].to_list()
@@ -54,9 +55,8 @@ def main():
                         reply = 'Sorry. I forgot the ticker. Can you please say again?'
                 elif 'fa' in message.lower() or 'fundamental' in message.lower():
                     if len(stock)>1: 
-                        response = get_ta(stock)
-                        reply = 'FA'
-                        # reply = 'Here is the FA for $'+ticker+':\n' +response + '\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
+                        response = get_fa(stock)
+                        reply = 'Here is the FA for $'+ticker+':\n' +response + '\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
                     else:
                         reply = 'Sorry. I forgot the ticker. Can you please say again?'
                 else:
