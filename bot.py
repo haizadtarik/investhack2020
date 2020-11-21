@@ -1,8 +1,8 @@
 import requests
 import pandas as pd
-from analyse import get_fa, get_ta
+from analyse import get_fa, get_ta, get_news
 
-TOKEN = '1291071980:AAE5nltPjU627ZeFgCWE5PtjLdw1_cbnt1o' # <insert-your-bot-token-here>
+TOKEN = # <insert-your-bot-token-here>
 bot = "https://api.telegram.org/bot"+TOKEN+"/"
 
 df = pd.read_csv('stock.csv')
@@ -59,8 +59,14 @@ def main():
                         reply = 'Here is the FA for $'+ticker+':\n' +response + '\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
                     else:
                         reply = 'Sorry. I forgot the ticker. Can you please say again?'
+                elif 'news' in message.lower():
+                    if len(stock)>1: 
+                        response = get_news(stock)
+                        reply = 'Here is the news for $'+ticker+':\n' +response 
+                    else:
+                        reply = 'Sorry. I forgot the ticker. Can you please say again?'
                 else:
-                    reply = 'May I know whether yo want FA or TA information?' 
+                    reply = 'May I know whether you want know about ht company\'s TA, FA or news?' 
                     
                 send_message(chat_id, reply)
 

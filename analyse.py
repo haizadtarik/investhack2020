@@ -82,3 +82,42 @@ def get_ta(stock):
             'ema200': ema200
     }
     return '\n'.join([f'{key}: {value}' for key, value in data.items()])
+
+def get_news(stock):
+    fa_url = 'https://www.investing.com/equities/'+stock+'-news'
+    response = get(fa_url, headers=headers)
+    print(response)
+    html_soup = BeautifulSoup(response.text, 'html.parser')
+    news = html_soup.find_all('div', class_="mediumTitle1")[1].find_all('article', class_='js-article-item articleItem') 
+    if len(news) > 2:
+        news1_url = str(news[0].find_all('a')[1]).split('>')[0].split(' ')[2].strip('href="')
+        news1 = ' '.join(str(news[0].find_all('a')[1]).split('>')[0].split(' ')[3:]).strip('title="')
+        news2_url = str(news[1].find_all('a')[1]).split('>')[0].split(' ')[2].strip('href="')
+        news2 = ' '.join(str(news[1].find_all('a')[1]).split('>')[0].split(' ')[3:]).strip('title="')
+        news3_url = str(news[2].find_all('a')[1]).split('>')[0].split(' ')[2].strip('href="')
+        news3 = ' '.join(str(news[2].find_all('a')[1]).split('>')[0].split(' ')[3:]).strip('title="')
+        data = {
+            news1: news1_url,
+            news2: news2_url,
+            news3: news3_url
+        }
+    elif len(news) == 2: 
+        news1_url = str(news[0].find_all('a')[1]).split('>')[0].split(' ')[2].strip('href="')
+        news1 = ' '.join(str(news[0].find_all('a')[1]).split('>')[0].split(' ')[3:]).strip('title="')
+        news2_url = str(news[1].find_all('a')[1]).split('>')[0].split(' ')[2].strip('href="')
+        news2 = ' '.join(str(news[1].find_all('a')[1]).split('>')[0].split(' ')[3:]).strip('title="')
+        data = {
+            news1: news1_url,
+            news2: news2_url
+        }
+    elif len(news) == 1:
+        news1_url = str(news[0].find_all('a')[1]).split('>')[0].split(' ')[2].strip('href="')
+        news1 = ' '.join(str(news[0].find_all('a')[1]).split('>')[0].split(' ')[3:]).strip('title="')
+        data = {
+            news1: news1_url
+        }
+    else: 
+        data = {
+            'now news': ' '
+        }
+    return '\n\n'.join([f'{key} \nhttps://www.investing.com{value}' for key, value in data.items()])
