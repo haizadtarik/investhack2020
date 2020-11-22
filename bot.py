@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from analyse import get_fa, get_ta, get_news
 
-TOKEN = '1419631107:AAF5Q0-uZT2mKwwa9pqnb3CrEKrxgPWwdCc' # <insert-your-bot-token-here>
+TOKEN = # <insert-your-bot-token-here>
 bot = "https://api.telegram.org/bot"+TOKEN+"/"
 
 df = pd.read_csv('stock.csv')
