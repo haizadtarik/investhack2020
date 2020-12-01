@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from analyse import get_fa, get_ta, get_news
 
-TOKEN = # <insert-your-bot-token-here>
+TOKEN =  <insert-your-bot-token-here>
 bot = "https://api.telegram.org/bot"+TOKEN+"/"
 
 df = pd.read_csv('stock.csv')
@@ -15,6 +15,7 @@ def get_message():
     results = response.json()['result']
     latest_update = len(results) - 1
     chat_id =  results[latest_update]['message']['chat']['id']
+    print(chat_id)
     update = results[latest_update]['update_id']
     if 'text' in results[latest_update]['message'].keys():
         text =  results[latest_update]['message']['text'] 
@@ -29,8 +30,8 @@ def send_message(chat, reply_text):
 
 def main():
     last_update_id = 0
-    print("Running...")
     stock = ''
+    print("Running...")
     while True:
         chat_id, message, update_id = get_message()
         if update_id > last_update_id:
@@ -59,32 +60,36 @@ def main():
                         reply = 'The 2% for the risk profile is RM{:.2f}\n'.format(risk)
                     else:
                         reply = 'Invalid format for calculating investment risk'
-                else:
+                elif any(x.lower() in message.lower() for x in tickers):
                     for x in tickers:
                         if x.lower() in message.lower():
                             ticker = x
                             stock = df.loc[df['Ticker'] == ticker]['Name'].values[0]
-
+                            reply = stock
                     if 'ta' in message.lower() or 'technical' in message.lower():
-                        if len(stock)>1: 
-                            response = get_ta(stock)
-                            reply = 'Here is the TA for $'+ticker+':\n' +response + '\n\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
-                        else:
-                            reply = 'Sorry. I forgot the ticker. Can you please say again?'
+                        response = get_ta(stock)
+                        reply = 'Here is the TA for $'+ticker+':\n' +response + '\n\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
                     elif 'fa' in message.lower() or 'fundamental' in message.lower():
-                        if len(stock)>1: 
-                            response = get_fa(stock)
-                            reply = 'Here is the FA for $'+ticker+':\n' +response + '\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
-                        else:
-                            reply = 'Sorry. I forgot the ticker. Can you please say again?'
+                        response = get_fa(stock)
+                        reply = 'Here is the FA for $'+ticker+':\n' +response + '\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
                     elif 'news' in message.lower():
-                        if len(stock)>1: 
-                            response = get_news(stock)
-                            reply = 'Here is the news for $'+ticker+':\n' +response 
-                        else:
-                            reply = 'Sorry. I forgot the ticker. Can you please say again?'
+                        response = get_news(stock)
+                        reply = 'Here is the news for $'+ticker+':\n' +response 
                     else:
-                        reply = 'May I know whether you want know about the company\'s TA, FA or news?'    
+                        reply = 'May I know whether you want know about the company\'s TA, FA or news?'
+                else:
+                    if len(stock) > 0 and ('ta' in message.lower() or 'technical' in message.lower()):
+                        response = get_ta(stock)
+                        reply = 'Here is the TA for $'+ticker+':\n' +response + '\n\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
+                    elif len(stock) > 0 and ('fa' in message.lower() or 'fundamental' in message.lower()):
+                        response = get_fa(stock)
+                        reply = 'Here is the FA for $'+ticker+':\n' +response + '\nTo analyse chart click the following link:\nhttps://www.investing.com/equities/'+stock+'-chart'
+                    elif len(stock) > 0 and ('news' in message.lower()):
+                        response = get_news(stock)
+                        reply = 'Here is the news for $'+ticker+':\n' +response
+                    else:
+                        reply = 'Sorry. I couldn\'t understand you. Please ask about company from the KLCI only'  
+
                 send_message(chat_id, reply)
 
             last_update_id = update_id
